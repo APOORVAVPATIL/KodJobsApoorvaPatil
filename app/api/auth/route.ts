@@ -1,12 +1,12 @@
 // app/api/auth/route.ts
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 import type { User } from '@/lib/types';
 
 const filePath = path.join(process.cwd(), 'data/users.json');
 
-const getUsers = async () => {
+const getUsers = async (): Promise<User[]> => {
   try {
     const data = await fs.promises.readFile(filePath, 'utf8');
     return JSON.parse(data).users || [];
@@ -24,14 +24,15 @@ const generateUniqueId = () => {
   return Date.now().toString(); // Generate a unique ID based on the current timestamp
 };
 
-export async function POST(req) {
+export async function POST(req: NextRequest) {
+ 
   const { fullName, email, dateOfBirth, password } = await req.json();
 
   // Define the path to the users.json file
   const filePath = path.join(process.cwd(), 'data', 'users.json');
 
   // Read existing users
-  let users = [];
+  let users: User[] = [];
   if (fs.existsSync(filePath)) {
     const fileData = fs.readFileSync(filePath, 'utf8');
     users = JSON.parse(fileData).users; // Ensure we access the users array
