@@ -19,12 +19,12 @@ const initializeUserFile = async () => {
 
 initializeUserFile()
 
+// Fix: Allow number as a valid type
 const calculateAge = (dob: string | Date | number): number => {
   let birthDate: Date
 
-  // Convert number (timestamp) to Date
   if (typeof dob === 'number') {
-    birthDate = new Date(dob)
+    birthDate = new Date(dob) // Convert timestamp to Date
   } else if (typeof dob === 'string' || dob instanceof Date) {
     birthDate = new Date(dob)
   } else {
@@ -51,7 +51,9 @@ export async function saveUser(userData: Omit<User, 'id' | 'age'>) {
     const data = await fs.readFile(filePath, 'utf8')
     const { users } = JSON.parse(data)
     
-    const age = calculateAge(userData.dob) // Handles number, string, and Date
+    // Fix: Ensure dob is passed as string | Date | number
+    const age = calculateAge(userData.dob as string | Date | number)
+
     const newUser = {
       id: Date.now().toString(),
       ...userData,
@@ -78,7 +80,7 @@ export async function verifyUser(email: string, password: string) {
     )
     
     if (user) {
-      const currentAge = calculateAge(user.dob)
+      const currentAge = calculateAge(user.dob as string | Date | number)
       if (currentAge !== user.age) {
         user.age = currentAge
         await fs.writeFile(filePath, JSON.stringify({ users }, null, 2))
