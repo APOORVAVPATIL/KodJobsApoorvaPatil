@@ -19,7 +19,7 @@ const initializeUserFile = async () => {
 
 initializeUserFile()
 
-const calculateAge = (dob: string): number => {
+const calculateAge = (dob: string | Date): number => {
   const birthDate = new Date(dob)
   const today = new Date()
   let age = today.getFullYear() - birthDate.getFullYear()
@@ -37,7 +37,7 @@ export async function saveUser(userData: Omit<User, 'id' | 'age'>) {
     const data = await fs.readFile(filePath, 'utf8')
     const { users } = JSON.parse(data)
     
-    const age = calculateAge(userData.dob.toString())
+    const age = calculateAge(String(userData.dob))
     const newUser = {
       id: Date.now().toString(),
       ...userData,
