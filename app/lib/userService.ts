@@ -20,7 +20,11 @@ const initializeUserFile = async () => {
 initializeUserFile()
 
 const calculateAge = (dob: string | Date): number => {
-  const birthDate = new Date(dob)
+  const birthDate = typeof dob === 'string' ? new Date(dob) : dob
+  if (isNaN(birthDate.getTime())) {
+    throw new Error('Invalid date format')
+  }
+  
   const today = new Date()
   let age = today.getFullYear() - birthDate.getFullYear()
   const monthDiff = today.getMonth() - birthDate.getMonth()
@@ -37,7 +41,7 @@ export async function saveUser(userData: Omit<User, 'id' | 'age'>) {
     const data = await fs.readFile(filePath, 'utf8')
     const { users } = JSON.parse(data)
     
-    const age = calculateAge(String(userData.dob))
+    const age = calculateAge(userData.dob) // Removed `String()` conversion
     const newUser = {
       id: Date.now().toString(),
       ...userData,
@@ -79,4 +83,4 @@ export async function verifyUser(email: string, password: string) {
     console.error('Error verifying user:', error)
     return { success: false, error: 'Failed to verify user' }
   }
-} 
+}
