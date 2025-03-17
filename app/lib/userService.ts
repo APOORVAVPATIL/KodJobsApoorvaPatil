@@ -19,10 +19,20 @@ const initializeUserFile = async () => {
 
 initializeUserFile()
 
-const calculateAge = (dob: string | Date): number => {
-  const birthDate = typeof dob === 'string' ? new Date(dob) : dob
-  if (isNaN(birthDate.getTime())) {
+const calculateAge = (dob: string | Date | number): number => {
+  let birthDate: Date
+
+  // Convert number (timestamp) to Date
+  if (typeof dob === 'number') {
+    birthDate = new Date(dob)
+  } else if (typeof dob === 'string' || dob instanceof Date) {
+    birthDate = new Date(dob)
+  } else {
     throw new Error('Invalid date format')
+  }
+
+  if (isNaN(birthDate.getTime())) {
+    throw new Error('Invalid date value')
   }
   
   const today = new Date()
@@ -41,7 +51,7 @@ export async function saveUser(userData: Omit<User, 'id' | 'age'>) {
     const data = await fs.readFile(filePath, 'utf8')
     const { users } = JSON.parse(data)
     
-    const age = calculateAge(userData.dob) // Removed `String()` conversion
+    const age = calculateAge(userData.dob) // Handles number, string, and Date
     const newUser = {
       id: Date.now().toString(),
       ...userData,
